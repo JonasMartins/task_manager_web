@@ -15,7 +15,7 @@ import { Formik, FormikProps, Form, Field } from "formik";
 import React, { ComponentProps } from "react";
 import { useRouter } from "next/dist/client/router";
 import axiosConfig from "./../../utils/axios.config";
-import { apiUrl, cookie_name } from "./../../utils/consts";
+import { cookie_name } from "./../../utils/consts";
 import { LoginResponse } from "../../utils/types";
 import { useCookies } from "react-cookie";
 
@@ -44,11 +44,11 @@ const LoginForm: NextPage<LoginFormProps> = () => {
     const [cookies, setCookie] = useCookies(["task_manager"]);
     const initialValues: inputValues = { email: "", password: "" };
 
-    function handleCookie(token: string) {
+    const handleCookie = (token: string) => {
         setCookie(cookie_name, token, {
             path: "/",
         });
-    }
+    };
 
     const handleLogin = async (values: inputValues): Promise<LoginResponse> => {
         const result: LoginResponse = await axiosConfig.post("/auth/login/", {

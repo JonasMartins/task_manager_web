@@ -5,13 +5,16 @@ import {
     FormLabel,
     Input,
     Stack,
-    useColorMode,
 } from "@chakra-ui/react";
 import { Field, Form, Formik, FormikProps } from "formik";
 import type { NextPage } from "next";
 import { useRouter } from "next/dist/client/router";
 import React, { ComponentProps } from "react";
+import { useCookies } from "react-cookie";
 import * as Yup from "yup";
+import { LoginResponse } from "../../utils/types";
+import axiosConfig from "./../../utils/axios.config";
+import { cookie_name } from "./../../utils/consts";
 
 const RegisterSchema = Yup.object().shape({
     nameReg: Yup.string()
@@ -49,15 +52,61 @@ const RegisterForm: NextPage = () => {
         passwordReg: "",
         passwordConfirmationReg: "",
     };
-
+    const [cookies, setCookie] = useCookies(["task_manager"]);
     const router = useRouter();
-    const { colorMode } = useColorMode();
+
+    const handleCookie = (token: string) => {
+        setCookie(cookie_name, token, {
+            path: "/",
+        });
+    };
+
+    const handleRegister = async (
+        values: FormValues
+    ): Promise<LoginResponse> => {
+        const result: LoginResponse = await axiosConfig.post(
+            "/auth/register/",
+            {
+                name: values.nameReg,
+                email: values.emailReg,
+                password: values.passwordReg,
+            }
+        );
+        if (result.data.access_token && typeof window !== "undefined") {
+            handleCookie(result.data.access_token!);
+        }
+
+        return result;
+    };
 
     return (
         <Formik
             initialValues={initialValues}
-            onSubmit={(values) => {
-                console.log(values);
+            onSubmit={async (values, actions) => {
+                const result = await handleRegister(values);
+                if (result.data.errors) {
+                    switch (result.data.errors[0].field) {
+                        case "name":
+                            actions.setErrors({
+                                nameReg: result.data.errors[0].message,
+                            });
+                            break;
+                        case "email":
+                            actions.setErrors({
+                                emailReg: result.data.errors[0].message,
+                            });
+                            break;
+                        case "password":
+                            actions.setErrors({
+                                passwordReg: result.data.errors[0].message,
+                            });
+                            break;
+                        default:
+                            actions.setErrors({});
+                    }
+                } else {
+                    router.push("/");
+                }
             }}
             validationSchema={RegisterSchema}
         >
@@ -71,7 +120,7 @@ const RegisterForm: NextPage = () => {
                         >
                             <FormLabel htmlFor="nameReg">Name</FormLabel>
                             <Field
-                                id="_nameReg"
+                                id="nameReg"
                                 name="nameReg"
                                 as={ChakraInput}
                             />
@@ -88,7 +137,7 @@ const RegisterForm: NextPage = () => {
                         >
                             <FormLabel htmlFor="emailReg">Email</FormLabel>
                             <Field
-                                id="_emailReg"
+                                id="emailReg"
                                 type="email"
                                 name="emailReg"
                                 as={ChakraInput}
@@ -108,7 +157,7 @@ const RegisterForm: NextPage = () => {
                                 Password
                             </FormLabel>
                             <Field
-                                id="_passwordReg"
+                                id="passwordReg"
                                 type="password"
                                 name="passwordReg"
                                 as={ChakraInput}
@@ -128,7 +177,7 @@ const RegisterForm: NextPage = () => {
                                 Password Confirmation
                             </FormLabel>
                             <Field
-                                id="_passwordConfirmation"
+                                id="passwordConfirmation"
                                 type="password"
                                 name="passwordConfirmationReg"
                                 as={ChakraInput}
@@ -146,7 +195,7 @@ const RegisterForm: NextPage = () => {
                                 !!props.errors.passwordReg ||
                                 !!props.errors.passwordConfirmationReg
                             }
-                            colorScheme="cyank"
+                            colorScheme="cyan"
                         >
                             Submit
                         </Button>
