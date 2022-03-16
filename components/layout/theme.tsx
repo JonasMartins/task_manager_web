@@ -29,6 +29,14 @@ const theme = extendTheme({
     initialColorMode: "system",
     useSystemColorMode: true,
 
+    styles: {
+        global: (props: { colorMode: string }) => ({
+            body: {
+                bg: props.colorMode === "dark" ? "grey.700" : "grey.50",
+            },
+        }),
+    },
+
     components: {
         Button: {
             baseStyle: {
