@@ -31,7 +31,7 @@ const Login: NextPage<LoginProps> = () => {
                     )}
                 </Flex>
                 <Switch
-                    colorScheme="purple"
+                    colorScheme="cyan"
                     size="lg"
                     id="changeColorMode"
                     onChange={toggleColorMode}
