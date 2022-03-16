@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
-import { VStack } from "@chakra-ui/react";
-import Login from "../components/Login";
+import { Text, VStack } from "@chakra-ui/react";
 
 const Home: NextPage = () => {
     return (
@@ -9,7 +8,7 @@ const Home: NextPage = () => {
             <Container maxW="container.lg">Large Container</Container>
             <Container maxW="container.md">Medium Container</Container>
             <Container maxW="container.sm">Small Container</Container> */}
-            <Login />
+            <Text>Dashboard</Text>
         </VStack>
     );
 };

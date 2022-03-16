@@ -14,8 +14,10 @@ import * as Yup from "yup";
 import { Formik, FormikProps, Form, Field } from "formik";
 import React, { ComponentProps } from "react";
 import { useRouter } from "next/dist/client/router";
-import axios from "axios";
-import { apiUrl } from "./../../utils/consts";
+import axiosConfig from "./../../utils/axios.config";
+import { apiUrl, cookie_name } from "./../../utils/consts";
+import { LoginResponse } from "../../utils/types";
+import { useCookies } from "react-cookie";
 
 interface inputValues {
     email: string;
@@ -39,31 +41,51 @@ interface LoginFormProps {}
 
 const LoginForm: NextPage<LoginFormProps> = () => {
     const router = useRouter();
-    const { colorMode } = useColorMode();
+    const [cookies, setCookie] = useCookies(["task_manager"]);
     const initialValues: inputValues = { email: "", password: "" };
 
-    const handleLogin = async (values: inputValues) => {
-        try {
-            const result = await axios.post(`${apiUrl}/auth/login/`, {
-                email: values.email,
-                password: values.password,
-            });
+    function handleCookie(token: string) {
+        setCookie(cookie_name, token, {
+            path: "/",
+        });
+    }
 
-            if (result.data.errors) {
-                console.log(result.data.errors);
-            } else {
-                console.log(result.data);
-            }
-        } catch (e) {
-            console.log(e);
+    const handleLogin = async (values: inputValues): Promise<LoginResponse> => {
+        const result: LoginResponse = await axiosConfig.post("/auth/login/", {
+            email: values.email,
+            password: values.password,
+        });
+
+        if (result.data.access_token && typeof window !== "undefined") {
+            handleCookie(result.data.access_token!);
         }
+
+        return result;
     };
 
     return (
         <Formik
             initialValues={initialValues}
-            onSubmit={async (values) => {
-                handleLogin(values);
+            onSubmit={async (values, actions) => {
+                const result = await handleLogin(values);
+                if (result.data.errors) {
+                    switch (result.data.errors[0].field) {
+                        case "email":
+                            actions.setErrors({
+                                email: "Incorrect Email",
+                            });
+                            break;
+                        case "password":
+                            actions.setErrors({
+                                password: "Incorrect Password",
+                            });
+                            break;
+                        default:
+                            actions.setErrors({});
+                    }
+                } else {
+                    router.push("/");
+                }
             }}
             validationSchema={LoginSchema}
         >
@@ -105,7 +127,15 @@ const LoginForm: NextPage<LoginFormProps> = () => {
                             </FormErrorMessage>
                         </FormControl>
 
-                        <Button type="submit" colorScheme="cyan">
+                        <Button
+                            type="submit"
+                            colorScheme="cyan"
+                            disabled={
+                                props.isSubmitting ||
+                                !!props.errors.email ||
+                                !!props.errors.password
+                            }
+                        >
                             Submit
                         </Button>
                     </Stack>

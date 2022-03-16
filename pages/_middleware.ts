@@ -1,6 +1,18 @@
-import type { NextFetchEvent, NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { cookie_name, existentRoutes } from "../utils/consts";
 
-export function middleware(req: NextRequest, ev: NextFetchEvent) {
+export function middleware(req: NextRequest) {
+    let cookie = req.cookies[cookie_name];
+    if (!cookie && req.page.name) {
+        if (
+            req.page.name !== "/login" &&
+            existentRoutes.includes(req.page.name)
+        ) {
+            const url = req.nextUrl.clone();
+            url.pathname = "/login";
+            return NextResponse.redirect(url);
+        }
+    }
     return NextResponse.next();
 }
