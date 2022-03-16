@@ -14,12 +14,29 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { useCookies } from "react-cookie";
 import { cookie_name } from "../utils/consts";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useUser } from "../components/hooks/useUser";
+import BeatLoaderCustom from "../components/layout/BeatLoaderCustom";
+
 const Home: NextPage = () => {
-    const { colorMode, toggleColorMode } = useColorMode();
-    const [cookies, setCookie, removeCookie] = useCookies(["task_manager"]);
-    const router = useRouter();
     const bgColor = { light: "white", dark: "gray.600" };
     const bgBodyColor = { light: "gray.50", dark: "gray.700" };
+
+    const { colorMode, toggleColorMode } = useColorMode();
+    const [cookies, setCookie, removeCookie] = useCookies([cookie_name]);
+    const [loadEffect, setLoadEffect] = useState(false);
+    const router = useRouter();
+    const user = useUser();
+
+    useEffect(() => {
+        setLoadEffect(true);
+        const load = setTimeout(() => {
+            setLoadEffect(false);
+        }, 500);
+        return () => {
+            clearTimeout(load);
+        };
+    }, [user?.id]);
 
     return (
         <Flex
@@ -59,13 +76,17 @@ const Home: NextPage = () => {
                 </Flex>
             </Flex>
 
-            <VStack>
-                <Container maxW="container.md" bg={bgColor[colorMode]}>
-                    <Flex justifyContent={"center"} boxShadow="lg">
-                        <Text>Dashboard</Text>
-                    </Flex>
-                </Container>
-            </VStack>
+            {loadEffect ? (
+                <BeatLoaderCustom />
+            ) : (
+                <VStack>
+                    <Container maxW="container.md" bg={bgColor[colorMode]}>
+                        <Flex justifyContent={"center"} boxShadow="lg">
+                            <Text>Welcome {user?.name}</Text>
+                        </Flex>
+                    </Container>
+                </VStack>
+            )}
         </Flex>
     );
 };

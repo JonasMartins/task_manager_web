@@ -15,6 +15,7 @@ import * as Yup from "yup";
 import { LoginResponse } from "../../utils/types";
 import axiosConfig from "./../../utils/axios.config";
 import { cookie_name } from "./../../utils/consts";
+import { useToken } from "./../hooks/useToken";
 
 const RegisterSchema = Yup.object().shape({
     nameReg: Yup.string()
@@ -54,11 +55,10 @@ const RegisterForm: NextPage = () => {
     };
     const [cookies, setCookie] = useCookies(["task_manager"]);
     const router = useRouter();
+    const [token, setToken] = useToken();
 
     const handleCookie = (token: string) => {
-        setCookie(cookie_name, token, {
-            path: "/",
-        });
+        setToken(token);
     };
 
     const handleRegister = async (
