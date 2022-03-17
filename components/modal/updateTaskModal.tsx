@@ -20,18 +20,18 @@ import {
     useColorMode,
     useToast,
 } from "@chakra-ui/react";
-import { Field, Form, Formik, FormikProps, validateYupSchema } from "formik";
+import { Field, Form, Formik, FormikProps } from "formik";
 import React, { ComponentProps, useState } from "react";
 import { useCookies } from "react-cookie";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as Yup from "yup";
-import BeatLoaderCustom from "../../components/layout/BeatLoaderCustom";
+import MiniBeatLoaderCustom from "../../components/layout/MiniBeatLoaderCustom";
 import { cookie_name, TaskBadge, TaskPriority } from "../../utils/consts";
 import { Task, TaskResponse } from "../../utils/types";
 import { loggedUserType } from "../hooks/useUser";
 import axiosConfig from "./../../utils/axios.config";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "./../../Redux/actions";
 
@@ -148,7 +148,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
                 description: values.description,
                 creator_id: loggedUser.id,
                 priority: TaskPriority.LOW,
-                badge: values.badge,
+                badge: values.badge || null,
                 done: task.done,
                 start: startDate,
                 finish: finishDate,
@@ -157,6 +157,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
         setLoading(false);
 
         if (result.data.task) {
+            onClose();
             setHasUpdatedTask(result.data.task);
             setTask(result.data.task);
             updateCallback(countUpdate + 1);
@@ -185,7 +186,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
                 <ModalCloseButton />
                 <ModalBody>
                     {loadEffect || loading ? (
-                        <BeatLoaderCustom />
+                        <MiniBeatLoaderCustom />
                     ) : (
                         <Formik
                             initialValues={initialValues}

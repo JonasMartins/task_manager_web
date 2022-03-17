@@ -139,6 +139,7 @@ const Task: NextPage<TaskProps> = ({ task }) => {
             <DeleteTaskModal
                 isOpen={_deleteTaskModal.isOpen}
                 onClose={_deleteTaskModal.onClose}
+                taskId={taskState.id}
             />
 
             <UpdateTaskModal

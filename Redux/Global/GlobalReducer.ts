@@ -21,7 +21,7 @@ export const globalReducer = (
             return { ...state, updatedTask: action.payload };
         }
         case GlobalTypes.HAS_DELETED_A_TASK: {
-            return { ...state, deletedTask: action.payload };
+            return { ...state, deletedTaskId: action.payload };
         }
         default:
             return state;

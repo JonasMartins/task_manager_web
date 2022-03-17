@@ -139,6 +139,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         setLoading(false);
 
         if (result.data.task) {
+            onClose();
             updateCallback(countUpdate + 1);
             taskCreatedCallback(result.data.task);
         }

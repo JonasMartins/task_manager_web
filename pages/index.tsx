@@ -69,6 +69,10 @@ const Home: NextPage = () => {
         (state: RootState) => state.globalReducer.updatedTask
     );
 
+    const deletedTaskId = useSelector(
+        (state: RootState) => state.globalReducer.deletedTaskId
+    );
+
     const taskCreatedCallback = (task: TaskType) => {
         toast({
             title: "Task Created",
@@ -104,10 +108,18 @@ const Home: NextPage = () => {
         [user?.id]
     );
 
+    const handleDeleteTask = useCallback(() => {
+        let newArray: Array<TaskType> = [];
+        tasks.forEach((x) => {
+            if (x.id !== deletedTaskId) {
+                newArray.push(x);
+            }
+        });
+        setTasks(newArray);
+        setDefaulTasks(newArray);
+    }, [deletedTaskId]);
+
     useEffect(() => {
-        if (countUpdate) {
-            _createTaskModal.onClose();
-        }
         if (updatedTask) {
             let updatedTaskIndex = -1;
             tasks.forEach((x, index) => {
@@ -127,7 +139,11 @@ const Home: NextPage = () => {
                 setDefaulTasks(newArrTasks);
             }
         }
-    }, [countUpdate, updatedTask?.id]);
+
+        if (deletedTaskId) {
+            handleDeleteTask();
+        }
+    }, [updatedTask?.id, deletedTaskId]);
 
     useEffect(() => {
         setLoadEffect(true);
