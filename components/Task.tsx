@@ -5,6 +5,7 @@ import {
     IconButton,
     Text,
     Tooltip,
+    useDisclosure,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { Task as TaskType } from "./../utils/types";
@@ -12,12 +13,17 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { BsTrash } from "react-icons/bs";
 import { formatRelative } from "date-fns";
 import { getBadgeColor } from "./../utils/tasksAuxFunctions";
+import DeleteTaskModal from "./modal/deleteTaskModal";
+import UpdateTaskModal from "./modal/updateTaskModal";
 
 interface TaskProps {
     task: TaskType;
 }
 
 const Task: NextPage<TaskProps> = ({ task }) => {
+    const _deleteTaskModal = useDisclosure();
+    const _updateTaskModal = useDisclosure();
+
     return (
         <Flex boxShadow="md" p={2} m={2}>
             <Flex flexDir="column" width="100%">
@@ -25,7 +31,12 @@ const Task: NextPage<TaskProps> = ({ task }) => {
                     <Tooltip label="Badge" hasArrow>
                         <Circle size="15px" bg={getBadgeColor(task.badge)} />
                     </Tooltip>
-                    <Checkbox size="lg" colorScheme="cyan" isChecked readOnly>
+                    <Checkbox
+                        size="lg"
+                        colorScheme="cyan"
+                        isChecked={task.done}
+                        readOnly
+                    >
                         Done ?
                     </Checkbox>
                 </Flex>
@@ -77,6 +88,9 @@ const Task: NextPage<TaskProps> = ({ task }) => {
                                 isRound={true}
                                 aria-label="Edit task"
                                 icon={<AiOutlineEdit />}
+                                onClick={() => {
+                                    _updateTaskModal.onOpen();
+                                }}
                             />
                         </Tooltip>
                         <Tooltip label="Delete Task" hasArrow>
@@ -85,11 +99,23 @@ const Task: NextPage<TaskProps> = ({ task }) => {
                                 isRound={true}
                                 aria-label="Delete task"
                                 icon={<BsTrash />}
+                                onClick={() => {
+                                    _deleteTaskModal.onOpen();
+                                }}
                             />
                         </Tooltip>
                     </Flex>
                 </Flex>
             </Flex>
+            <DeleteTaskModal
+                isOpen={_deleteTaskModal.isOpen}
+                onClose={_deleteTaskModal.onClose}
+            />
+
+            <UpdateTaskModal
+                isOpen={_updateTaskModal.isOpen}
+                onClose={_updateTaskModal.onClose}
+            />
         </Flex>
     );
 };

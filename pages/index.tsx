@@ -16,6 +16,7 @@ import {
     Text,
     Tooltip,
     useColorMode,
+    useDisclosure,
     VStack,
 } from "@chakra-ui/react";
 import { BsMoon, BsSun } from "react-icons/bs";
@@ -40,8 +41,10 @@ import {
     filterByTitle,
     filterTasksByBadge,
 } from "./../utils/tasksAuxFunctions";
+import CreateTaskModal from "../components/modal/createTaskModal";
 
 const Home: NextPage = () => {
+    const _createTaskModal = useDisclosure();
     const bgColor = { light: "white", dark: "gray.800" };
     const { colorMode, toggleColorMode } = useColorMode();
     const [tasks, setTasks] = useState<Array<TaskType>>([]);
@@ -193,6 +196,9 @@ const Home: NextPage = () => {
                                         aria-label="Add new task"
                                         icon={<BiPlus />}
                                         colorScheme="cyan"
+                                        onClick={() => {
+                                            _createTaskModal.onOpen();
+                                        }}
                                     />
                                 </Tooltip>
                             </Flex>
@@ -419,6 +425,10 @@ const Home: NextPage = () => {
                 </VStack>
             )}
             <Footer />
+            <CreateTaskModal
+                isOpen={_createTaskModal.isOpen}
+                onClose={_createTaskModal.onClose}
+            />
         </Flex>
     );
 };
