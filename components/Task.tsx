@@ -30,6 +30,9 @@ const Task: NextPage<TaskProps> = ({ task }) => {
                     </Checkbox>
                 </Flex>
                 <Flex flexGrow={1} p={2}>
+                    <Text fontWeight="medium">{task.title}</Text>
+                </Flex>
+                <Flex flexGrow={1} p={2}>
                     <Text fontWeight="thin">{task.description}</Text>
                 </Flex>
                 <Flex
@@ -47,6 +50,25 @@ const Task: NextPage<TaskProps> = ({ task }) => {
                     >
                         Created At:{" "}
                         {formatRelative(new Date(task.createdAt), new Date())}
+                    </Text>
+
+                    <Text
+                        fontWeight="thin"
+                        fontSize="xs"
+                        textAlign="end"
+                        ml={3}
+                    >
+                        Start:{" "}
+                        {formatRelative(new Date(task.start), new Date())}
+                    </Text>
+                    <Text
+                        fontWeight="thin"
+                        fontSize="xs"
+                        textAlign="end"
+                        ml={3}
+                    >
+                        Finish:{" "}
+                        {formatRelative(new Date(task.finish), new Date())}
                     </Text>
                     <Flex>
                         <Tooltip label="Edit Task" hasArrow>

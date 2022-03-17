@@ -10,6 +10,8 @@ import {
     Switch,
     Tab,
     TabList,
+    TabPanel,
+    TabPanels,
     Tabs,
     Text,
     Tooltip,
@@ -23,27 +25,32 @@ import {
     AiOutlineArrowUp,
 } from "react-icons/ai";
 import { useCookies } from "react-cookie";
-import { cookie_name } from "../utils/consts";
+import { cookie_name, TaskBadge } from "../utils/consts";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "../components/hooks/useUser";
 import BeatLoaderCustom from "../components/layout/BeatLoaderCustom";
-import { UserResponse } from "./../utils/types";
+import { UserResponse, Task as TaskType } from "./../utils/types";
 import axiosConfig from "../utils/axios.config";
 import Task from "./../components/Task";
 import { BiPlus } from "react-icons/bi";
+import { MdOutlineClear } from "react-icons/md";
 import Footer from "../components/layout/Footer";
+import { filterTasksByBadge } from "./../utils/tasksAuxFunctions";
 
 const Home: NextPage = () => {
     const bgColor = { light: "white", dark: "gray.800" };
     const { colorMode, toggleColorMode } = useColorMode();
-    const [profile, setProfile] = useState<UserResponse | null>(null);
+    const [tasks, setTasks] = useState<Array<TaskType>>([]);
+    const [defaulTasks, setDefaulTasks] = useState<Array<TaskType>>([]);
     const [cookies, setCookie, removeCookie] = useCookies([cookie_name]);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadEffect, setLoadEffect] = useState(false);
     const router = useRouter();
     const user = useUser();
     const [decrescentCreated, setDecrescentCreated] = useState(false);
+    const [decrescentTitle, setDecrescentTitle] = useState(false);
+    const [decrescentStart, setDecrescentStart] = useState(false);
 
     const handleGetProfile = useCallback(
         async (id: string) => {
@@ -57,8 +64,12 @@ const Home: NextPage = () => {
                 }
             );
             setLoading(false);
-            if (response.data) {
-                setProfile(response);
+            if (response.data.user?.tasks) {
+                setTasks([]);
+                response.data.user.tasks.map((x) => {
+                    setTasks((prevTask) => [...prevTask, x]);
+                    setDefaulTasks((prevDefTasks) => [...prevDefTasks, x]);
+                });
             }
         },
         [user?.id]
@@ -76,6 +87,8 @@ const Home: NextPage = () => {
         }, 500);
         return () => {
             clearTimeout(load);
+            setTasks([]);
+            setDefaulTasks([]);
         };
     }, [user?.id]);
 
@@ -160,8 +173,33 @@ const Home: NextPage = () => {
                                     label="Filter Tasks By Badges"
                                     aria-label="filter By Badges"
                                 >
-                                    <Tabs isLazy isFitted align="center">
+                                    <Tabs
+                                        isLazy
+                                        isFitted
+                                        align="center"
+                                        onChange={(index) => {
+                                            setTasks([]);
+                                            setTasks(
+                                                filterTasksByBadge(
+                                                    index,
+                                                    defaulTasks
+                                                )
+                                            );
+                                        }}
+                                    >
                                         <TabList>
+                                            <Tab>
+                                                <Circle
+                                                    size="15px"
+                                                    bg={
+                                                        colorMode === "dark"
+                                                            ? "grey.700"
+                                                            : "white"
+                                                    }
+                                                >
+                                                    <MdOutlineClear />
+                                                </Circle>
+                                            </Tab>
                                             <Tab>
                                                 <Circle
                                                     size="15px"
@@ -217,6 +255,34 @@ const Home: NextPage = () => {
                                                 <AiOutlineArrowDown />
                                             )
                                         }
+                                        onClick={() => {
+                                            setDecrescentCreated(
+                                                !decrescentCreated
+                                            );
+                                            if (decrescentCreated) {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.createdAt >
+                                                        a.createdAt
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            } else {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.createdAt <
+                                                        a.createdAt
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            }
+                                        }}
                                     >
                                         Created At
                                     </Button>
@@ -232,19 +298,92 @@ const Home: NextPage = () => {
                                         fontWeight="thin"
                                         ml={2}
                                         rightIcon={
-                                            decrescentCreated ? (
+                                            decrescentTitle ? (
                                                 <AiOutlineArrowUp />
                                             ) : (
                                                 <AiOutlineArrowDown />
                                             )
                                         }
+                                        onClick={() => {
+                                            setDecrescentTitle(
+                                                !decrescentTitle
+                                            );
+                                            if (decrescentTitle) {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.title > a.title
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            } else {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.title < a.title
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            }
+                                        }}
                                     >
                                         Title
                                     </Button>
                                 </Tooltip>
+                                <Tooltip
+                                    hasArrow={true}
+                                    label="Order Tasks by start"
+                                    aria-label="Order Tasks by start"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        name="start"
+                                        fontWeight="thin"
+                                        ml={2}
+                                        rightIcon={
+                                            decrescentStart ? (
+                                                <AiOutlineArrowUp />
+                                            ) : (
+                                                <AiOutlineArrowDown />
+                                            )
+                                        }
+                                        onClick={() => {
+                                            setDecrescentStart(
+                                                !decrescentStart
+                                            );
+                                            if (decrescentStart) {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.start > a.start
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            } else {
+                                                tasks.sort(
+                                                    (
+                                                        a: TaskType,
+                                                        b: TaskType
+                                                    ) =>
+                                                        b.start < a.start
+                                                            ? 1
+                                                            : -1
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Start
+                                    </Button>
+                                </Tooltip>
                             </Flex>
-                            {profile?.data?.user?.tasks.map((x) => (
-                                <Task task={x} />
+                            {tasks.map((x) => (
+                                <Task key={x.id} task={x} />
                             ))}
                         </Flex>
                     </Container>
