@@ -53,3 +53,9 @@ export const filterTasksByBadge = (
             return tasks;
     }
 };
+
+export const filterByTitle = (term: string, tasks: Array<TaskType>) => {
+    return tasks.filter((x) =>
+        x.title.toLowerCase().includes(term.toLowerCase())
+    );
+};

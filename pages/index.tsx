@@ -27,7 +27,7 @@ import {
 import { useCookies } from "react-cookie";
 import { cookie_name, TaskBadge } from "../utils/consts";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useUser } from "../components/hooks/useUser";
 import BeatLoaderCustom from "../components/layout/BeatLoaderCustom";
 import { UserResponse, Task as TaskType } from "./../utils/types";
@@ -36,7 +36,10 @@ import Task from "./../components/Task";
 import { BiPlus } from "react-icons/bi";
 import { MdOutlineClear } from "react-icons/md";
 import Footer from "../components/layout/Footer";
-import { filterTasksByBadge } from "./../utils/tasksAuxFunctions";
+import {
+    filterByTitle,
+    filterTasksByBadge,
+} from "./../utils/tasksAuxFunctions";
 
 const Home: NextPage = () => {
     const bgColor = { light: "white", dark: "gray.800" };
@@ -51,6 +54,7 @@ const Home: NextPage = () => {
     const [decrescentCreated, setDecrescentCreated] = useState(false);
     const [decrescentTitle, setDecrescentTitle] = useState(false);
     const [decrescentStart, setDecrescentStart] = useState(false);
+    const [inputField, setInputField] = useState("");
 
     const handleGetProfile = useCallback(
         async (id: string) => {
@@ -66,9 +70,12 @@ const Home: NextPage = () => {
             setLoading(false);
             if (response.data.user?.tasks) {
                 setTasks([]);
-                response.data.user.tasks.map((x) => {
-                    setTasks((prevTask) => [...prevTask, x]);
-                    setDefaulTasks((prevDefTasks) => [...prevDefTasks, x]);
+                response.data.user.tasks.map((x, index) => {
+                    // testing limit the tasks length
+                    if (index < 6) {
+                        setTasks((prevTask) => [...prevTask, x]);
+                        setDefaulTasks((prevDefTasks) => [...prevDefTasks, x]);
+                    }
                 });
             }
         },
@@ -88,6 +95,7 @@ const Home: NextPage = () => {
         return () => {
             clearTimeout(load);
             setTasks([]);
+            console.log("here?");
             setDefaulTasks([]);
         };
     }, [user?.id]);
@@ -152,7 +160,28 @@ const Home: NextPage = () => {
                                 mb={5}
                             >
                                 <Flex flexGrow={1}>
-                                    <Input placeholder="Filter Task" mr={4} />
+                                    <Input
+                                        placeholder="Filter Task"
+                                        mr={4}
+                                        value={inputField}
+                                        onChange={(
+                                            event: ChangeEvent<HTMLInputElement>
+                                        ) => {
+                                            setInputField(event.target.value);
+                                            if (!event.target.value.length) {
+                                                setTasks([]);
+                                                setTasks(defaulTasks);
+                                            } else {
+                                                setTasks([]);
+                                                setTasks(
+                                                    filterByTitle(
+                                                        event.target.value,
+                                                        defaulTasks
+                                                    )
+                                                );
+                                            }
+                                        }}
+                                    />
                                 </Flex>
                                 <Tooltip
                                     hasArrow={true}
