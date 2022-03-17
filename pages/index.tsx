@@ -116,7 +116,6 @@ const Home: NextPage = () => {
         return () => {
             clearTimeout(load);
             setTasks([]);
-            console.log("here?");
             setDefaulTasks([]);
         };
     }, [user?.id]);
