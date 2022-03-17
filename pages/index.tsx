@@ -39,6 +39,9 @@ import {
     filterTasksByBadge,
 } from "./../utils/tasksAuxFunctions";
 import { Task as TaskType, UserResponse } from "./../utils/types";
+import { useSelector } from "react-redux";
+import { RootState } from "./../Redux/Global/GlobalReducer";
+import update from "immutability-helper";
 
 const Home: NextPage = () => {
     const _createTaskModal = useDisclosure();
@@ -61,6 +64,10 @@ const Home: NextPage = () => {
     const updatedCallback = (value: number): void => {
         setCountUpdate(value);
     };
+
+    const updatedTask = useSelector(
+        (state: RootState) => state.globalReducer.updatedTask
+    );
 
     const taskCreatedCallback = (task: TaskType) => {
         toast({
@@ -101,7 +108,26 @@ const Home: NextPage = () => {
         if (countUpdate) {
             _createTaskModal.onClose();
         }
-    }, [countUpdate]);
+        if (updatedTask) {
+            let updatedTaskIndex = -1;
+            tasks.forEach((x, index) => {
+                if (x.id === updatedTask.id) {
+                    updatedTaskIndex = index;
+                }
+            });
+
+            if (updatedTaskIndex > -1) {
+                let updatedTaskAux = tasks[updatedTaskIndex];
+                let newTask = update(updatedTaskAux, { $set: updatedTask });
+
+                let newArrTasks = update(tasks, {
+                    $splice: [[updatedTaskIndex, 1, newTask]],
+                });
+                setTasks(newArrTasks);
+                setDefaulTasks(newArrTasks);
+            }
+        }
+    }, [countUpdate, updatedTask?.id]);
 
     useEffect(() => {
         setLoadEffect(true);

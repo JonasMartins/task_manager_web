@@ -5,10 +5,10 @@ import { Task } from "../../utils/types";
 
 export interface globalState {
     updatedTask: Task | null;
-    deletedTask: Task | null;
+    deletedTaskId: string | null;
 }
 const initialState = {
-    deletedTask: null,
+    deletedTaskId: "",
     updatedTask: null,
 };
 

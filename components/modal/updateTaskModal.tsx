@@ -31,6 +31,9 @@ import { cookie_name, TaskBadge, TaskPriority } from "../../utils/consts";
 import { Task, TaskResponse } from "../../utils/types";
 import { loggedUserType } from "../hooks/useUser";
 import axiosConfig from "./../../utils/axios.config";
+import { useDispatch, useSelector } from "react-redux";
+import { bindActionCreators } from "redux";
+import { actionCreators } from "./../../Redux/actions";
 
 type InputProps = ComponentProps<typeof Input>;
 
@@ -112,6 +115,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
     taskUpdateCallback,
 }) => {
     const toast = useToast();
+    const dispatch = useDispatch();
     const { colorMode } = useColorMode();
     const [cookies, setCookie] = useCookies([cookie_name]);
     const [startDate, setStartDate] = useState(new Date(currentTask.start));
@@ -128,6 +132,8 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
         start: task.start,
         finish: task.finish,
     };
+
+    const { setHasUpdatedTask } = bindActionCreators(actionCreators, dispatch);
 
     const handleSubmit = async (values: inputValues) => {
         setLoading(true);
@@ -151,6 +157,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
         setLoading(false);
 
         if (result.data.task) {
+            setHasUpdatedTask(result.data.task);
             setTask(result.data.task);
             updateCallback(countUpdate + 1);
             taskUpdateCallback(result.data.task);
