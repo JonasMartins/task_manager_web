@@ -1,23 +1,20 @@
 import {
-    Flex,
-    Text,
-    Input,
-    useColorMode,
-    Stack,
-    FormControl,
-    FormLabel,
-    FormErrorMessage,
     Button,
+    FormControl,
+    FormErrorMessage,
+    FormLabel,
+    Input,
+    Stack,
 } from "@chakra-ui/react";
+import { Field, Form, Formik, FormikProps } from "formik";
 import { NextPage } from "next";
-import * as Yup from "yup";
-import { Formik, FormikProps, Form, Field } from "formik";
-import React, { ComponentProps } from "react";
 import { useRouter } from "next/dist/client/router";
+import React, { ComponentProps } from "react";
+import { useCookies } from "react-cookie";
+import * as Yup from "yup";
+import { LoginResponse } from "../../utils/types";
 import axiosConfig from "./../../utils/axios.config";
 import { cookie_name } from "./../../utils/consts";
-import { LoginResponse } from "../../utils/types";
-import { useCookies } from "react-cookie";
 
 interface inputValues {
     email: string;

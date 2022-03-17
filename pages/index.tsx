@@ -1,7 +1,5 @@
-import type { NextPage } from "next";
 import {
     Button,
-    Circle,
     Container,
     Flex,
     Heading,
@@ -10,41 +8,44 @@ import {
     Switch,
     Tab,
     TabList,
-    TabPanel,
-    TabPanels,
     Tabs,
-    Text,
     Tooltip,
     useColorMode,
     useDisclosure,
+    useToast,
     VStack,
 } from "@chakra-ui/react";
-import { BsMoon, BsSun } from "react-icons/bs";
-import {
-    AiOutlineLogout,
-    AiOutlineArrowDown,
-    AiOutlineArrowUp,
-} from "react-icons/ai";
-import { useCookies } from "react-cookie";
-import { cookie_name, TaskBadge } from "../utils/consts";
+import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
+import {
+    AiOutlineArrowDown,
+    AiOutlineArrowUp,
+    AiOutlineLogout,
+} from "react-icons/ai";
+import { BiPlus } from "react-icons/bi";
+import { BsMoon, BsSun } from "react-icons/bs";
+import { MdOutlineClear } from "react-icons/md";
 import { useUser } from "../components/hooks/useUser";
 import BeatLoaderCustom from "../components/layout/BeatLoaderCustom";
-import { UserResponse, Task as TaskType } from "./../utils/types";
-import axiosConfig from "../utils/axios.config";
-import Task from "./../components/Task";
-import { BiPlus } from "react-icons/bi";
-import { MdOutlineClear } from "react-icons/md";
 import Footer from "../components/layout/Footer";
+import CreateTaskModal from "../components/modal/createTaskModal";
+import axiosConfig from "../utils/axios.config";
+import { cookie_name } from "../utils/consts";
+import Task from "./../components/Task";
 import {
     filterByTitle,
     filterTasksByBadge,
 } from "./../utils/tasksAuxFunctions";
-import CreateTaskModal from "../components/modal/createTaskModal";
+import { Task as TaskType, UserResponse } from "./../utils/types";
 
 const Home: NextPage = () => {
     const _createTaskModal = useDisclosure();
+
+    const user = useUser();
+    const toast = useToast();
+    const router = useRouter();
     const bgColor = { light: "white", dark: "gray.800" };
     const { colorMode, toggleColorMode } = useColorMode();
     const [tasks, setTasks] = useState<Array<TaskType>>([]);
@@ -52,12 +53,26 @@ const Home: NextPage = () => {
     const [cookies, setCookie, removeCookie] = useCookies([cookie_name]);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadEffect, setLoadEffect] = useState(false);
-    const router = useRouter();
-    const user = useUser();
     const [decrescentCreated, setDecrescentCreated] = useState(false);
     const [decrescentTitle, setDecrescentTitle] = useState(false);
     const [decrescentStart, setDecrescentStart] = useState(false);
     const [inputField, setInputField] = useState("");
+    const [countUpdate, setCountUpdate] = useState(0);
+    const updatedCallback = (value: number): void => {
+        setCountUpdate(value);
+    };
+
+    const taskCreatedCallback = (task: TaskType) => {
+        toast({
+            title: "Task Created",
+            description: "Task successfully created",
+            status: "success",
+            duration: 8000,
+            isClosable: true,
+            position: "top",
+        });
+        setTasks((prevTask) => [task, ...prevTask]);
+    };
 
     const handleGetProfile = useCallback(
         async (id: string) => {
@@ -73,17 +88,20 @@ const Home: NextPage = () => {
             setLoading(false);
             if (response.data.user?.tasks) {
                 setTasks([]);
-                response.data.user.tasks.map((x, index) => {
-                    // testing limit the tasks length
-                    if (index < 6) {
-                        setTasks((prevTask) => [...prevTask, x]);
-                        setDefaulTasks((prevDefTasks) => [...prevDefTasks, x]);
-                    }
+                response.data.user.tasks.map((x) => {
+                    setTasks((prevTask) => [...prevTask, x]);
+                    setDefaulTasks((prevDefTasks) => [...prevDefTasks, x]);
                 });
             }
         },
         [user?.id]
     );
+
+    useEffect(() => {
+        if (countUpdate) {
+            _createTaskModal.onClose();
+        }
+    }, [countUpdate]);
 
     useEffect(() => {
         setLoadEffect(true);
@@ -224,50 +242,14 @@ const Home: NextPage = () => {
                                     >
                                         <TabList>
                                             <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg={
-                                                        colorMode === "dark"
-                                                            ? "grey.700"
-                                                            : "white"
-                                                    }
-                                                >
-                                                    <MdOutlineClear />
-                                                </Circle>
+                                                <MdOutlineClear />
                                             </Tab>
-                                            <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg="grey.100"
-                                                />
-                                            </Tab>
-                                            <Tab>
-                                                <Circle size="15px" bg="red" />
-                                            </Tab>
-                                            <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg="orange"
-                                                />
-                                            </Tab>
-                                            <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg="yellow"
-                                                />
-                                            </Tab>
-                                            <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg="green"
-                                                />
-                                            </Tab>
-                                            <Tab>
-                                                <Circle
-                                                    size="15px"
-                                                    bg="blue.400"
-                                                />
-                                            </Tab>
+                                            <Tab>⚪</Tab>
+                                            <Tab>🔴</Tab>
+                                            <Tab>🟠</Tab>
+                                            <Tab>🟡</Tab>
+                                            <Tab>🟢</Tab>
+                                            <Tab>🔵</Tab>
                                         </TabList>
                                     </Tabs>
                                 </Tooltip>
@@ -428,6 +410,10 @@ const Home: NextPage = () => {
             <CreateTaskModal
                 isOpen={_createTaskModal.isOpen}
                 onClose={_createTaskModal.onClose}
+                loggedUser={user}
+                countUpdate={countUpdate}
+                updateCallback={updatedCallback}
+                taskCreatedCallback={taskCreatedCallback}
             />
         </Flex>
     );

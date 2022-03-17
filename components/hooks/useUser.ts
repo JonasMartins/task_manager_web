@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToken } from "./useToken";
 
-type user = {
+export type loggedUserType = {
     id: string;
     name: string;
     email: string;
@@ -10,7 +10,7 @@ type user = {
     exp: number;
 };
 
-export const useUser = (): user => {
+export const useUser = (): loggedUserType => {
     const [token] = useToken();
     const getPayloadFromToken = (token: string) => {
         const encodedPayload = token.split(".")[1];
