@@ -179,7 +179,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
                 <ModalHeader>
                     <Flex justifyContent="center">
                         <Text fontWeight="thin" fontSize="2xl">
-                            Create Task
+                            Update Task
                         </Text>
                     </Flex>
                 </ModalHeader>
