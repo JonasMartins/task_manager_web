@@ -20,3 +20,12 @@ export const setHasUpdatedTask = (taskUpdated: Task) => {
         });
     };
 };
+
+export const setHasUpdatedTaskCount = (count: number) => {
+    return (dispatch: Dispatch<Action>) => {
+        dispatch({
+            type: GlobalTypes.HAS_UPDATED_TASK_COUNT,
+            payload: count,
+        });
+    };
+};

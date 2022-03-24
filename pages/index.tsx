@@ -65,6 +65,10 @@ const Home: NextPage = () => {
         setCountUpdate(value);
     };
 
+    const updatedTaskCount = useSelector(
+        (state: RootState) => state.globalReducer.updatedTaskCount
+    );
+
     const updatedTask = useSelector(
         (state: RootState) => state.globalReducer.updatedTask
     );
@@ -83,6 +87,7 @@ const Home: NextPage = () => {
             position: "top",
         });
         setTasks((prevTask) => [task, ...prevTask]);
+        setDefaulTasks((prevDefTasks) => [task, ...prevDefTasks]);
     };
 
     const handleGetProfile = useCallback(
@@ -143,7 +148,7 @@ const Home: NextPage = () => {
         if (deletedTaskId) {
             handleDeleteTask();
         }
-    }, [updatedTask?.id, deletedTaskId]);
+    }, [updatedTaskCount, deletedTaskId]);
 
     useEffect(() => {
         setLoadEffect(true);

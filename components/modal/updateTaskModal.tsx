@@ -133,7 +133,10 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
         finish: task.finish,
     };
 
-    const { setHasUpdatedTask } = bindActionCreators(actionCreators, dispatch);
+    const { setHasUpdatedTask, setHasUpdatedTaskCount } = bindActionCreators(
+        actionCreators,
+        dispatch
+    );
 
     const handleSubmit = async (values: inputValues) => {
         setLoading(true);
@@ -162,6 +165,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
             setTask(result.data.task);
             updateCallback(countUpdate + 1);
             taskUpdateCallback(result.data.task);
+            setHasUpdatedTaskCount(countUpdate + 1);
         }
 
         return result;

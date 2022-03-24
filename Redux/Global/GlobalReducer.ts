@@ -6,10 +6,12 @@ import { Task } from "../../utils/types";
 export interface globalState {
     updatedTask: Task | null;
     deletedTaskId: string | null;
+    updatedTaskCount: number;
 }
 const initialState = {
     deletedTaskId: "",
     updatedTask: null,
+    updatedTaskCount: 0,
 };
 
 export const globalReducer = (
@@ -22,6 +24,9 @@ export const globalReducer = (
         }
         case GlobalTypes.HAS_DELETED_A_TASK: {
             return { ...state, deletedTaskId: action.payload };
+        }
+        case GlobalTypes.HAS_UPDATED_TASK_COUNT: {
+            return { ...state, updatedTaskCount: action.payload };
         }
         default:
             return state;

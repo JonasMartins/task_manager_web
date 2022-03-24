@@ -27,7 +27,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import * as Yup from "yup";
 import BeatLoaderCustom from "../../components/layout/BeatLoaderCustom";
 import { cookie_name, TaskBadge, TaskPriority } from "../../utils/consts";
-import { uuidv4Like } from "../../utils/tasksAuxFunctions";
 import { Task, TaskResponse, User } from "../../utils/types";
 import { loggedUserType } from "../hooks/useUser";
 import axiosConfig from "./../../utils/axios.config";

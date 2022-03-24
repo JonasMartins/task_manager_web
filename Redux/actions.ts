@@ -11,6 +11,11 @@ export type DeleteTask = {
     payload: string;
 };
 
-export type Action = UpdateTask | DeleteTask;
+export type SetUpdateTaskCount = {
+    type: typeof GlobalTypes.HAS_UPDATED_TASK_COUNT;
+    payload: number;
+};
+
+export type Action = UpdateTask | SetUpdateTaskCount | DeleteTask;
 
 export * as actionCreators from "./actionCreators";
