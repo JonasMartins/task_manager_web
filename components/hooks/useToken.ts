@@ -14,7 +14,7 @@ export const useToken = () => {
     });
 
     const setToken = (newToken: string): void => {
-        setCookie(cookie_name, token, {
+        setCookie(cookie_name, newToken, {
             path: "/",
         });
         setTokenInternal(newToken);
